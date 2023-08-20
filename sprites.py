@@ -1,8 +1,18 @@
 from typing import Any
 import pygame
 
-from config import CHARACTERS_LAYER, SQUARE_SIZE, COLORS, PLAYER_SPEED
+from config import BLOCKS_LAYER, CHARACTERS_LAYER, SQUARE_SIZE, COLORS, PLAYER_SPEED
 
+class Spritesheet:
+    def __init__(self) -> None:
+        self.sheet = pygame.image.load("assets/Sheet.png").convert()
+
+    def get_sprite(self, x, y):
+        sprite = pygame.Surface([SQUARE_SIZE, SQUARE_SIZE])
+        sprite.set_colorkey(COLORS['BLACK'])
+        sprite.blit(self.sheet, (0,0), (x, y, SQUARE_SIZE, SQUARE_SIZE))
+
+        return sprite
 class Player(pygame.sprite.Sprite):
     def __init__(self, game, x, y) -> None:
         
@@ -19,8 +29,7 @@ class Player(pygame.sprite.Sprite):
         self.x_move = 0
         self.y_move = 0
 
-        self.image = pygame.Surface([self.width, self.height])
-        self.image.fill(COLORS['RED'])
+        self.image = Spritesheet().get_sprite(1280,1888)
 
         self.rect = self.image.get_rect()
         self.rect.x = self.x
@@ -44,9 +53,30 @@ class Player(pygame.sprite.Sprite):
         self.rect.x = self.x
         self.rect.y = self.y
 
+        self.x_move = 0
+        self.y_move = 0
+
     def update(self, *args: Any, **kwargs: Any) -> None:
         self.move()
         
-        self.x_move = 0
-        self.y_move = 0
+
+class Block(pygame.sprite.Sprite):
+    def __init__(self, game, x ,y) -> None:
+        
+        self.game = game
+        self._layer = BLOCKS_LAYER
+        self.groups = self.game.all_sprites, self.game.blocks
+        super().__init__(self.groups)
+
+        self.x = x * SQUARE_SIZE
+        self.y = y * SQUARE_SIZE
+
+        self.size = [SQUARE_SIZE, SQUARE_SIZE]
+
+        self.image = pygame.Surface(self.size)
+        self.image.fill(COLORS['BLUE'])
+
+        self.rect = self.image.get_rect()
+        self.rect.x = self.x
+        self.rect.y = self.y
         

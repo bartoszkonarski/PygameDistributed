@@ -1,27 +1,36 @@
 import sys
 import pygame
 
-from config import COLORS, FRAMERATE, RESOLUTION
-from sprites import Player
+from config import COLORS, FRAMERATE, RESOLUTION, TILEMAPS
+from sprites import Player, Block
 
 
 class Game:
     def __init__(self) -> None:
         pygame.init()
+        pygame.display.set_caption('Przetwarzanie rozproszone - projekt zaliczeniowy, Bartosz Konarski 200830')
         self.screen = pygame.display.set_mode(RESOLUTION)
         self.clock = pygame.time.Clock()
 
         # self.font = pygame.font.Font('Arial', 32)
         self.running = True
 
+    def drawTilemap(self, zone_name: str, x_offset: int = 0):
+        for i, row in enumerate(TILEMAPS[zone_name]):
+            for j, column in enumerate(row):
+                if column == 'W':
+                    Block(self, j + x_offset, i)
+
     def create(self):
         self.playing = True
 
         self.all_sprites = pygame.sprite.LayeredUpdates()
-        self.tiles = pygame.sprite.LayeredUpdates()
+        self.blocks = pygame.sprite.LayeredUpdates()
         self.enemies = pygame.sprite.LayeredUpdates()
 
         self.player = Player(self, 1, 2)
+
+        self.drawTilemap('FOREST')
 
     def events(self):
         for event in pygame.event.get():
