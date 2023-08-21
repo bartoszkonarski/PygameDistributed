@@ -2,7 +2,7 @@ import sys
 import pygame
 
 from config import COLORS, FRAMERATE, RESOLUTION, TILEMAPS
-from sprites import Player, Block
+from sprites import Player, Block, Floor
 
 
 class Game:
@@ -15,11 +15,13 @@ class Game:
         # self.font = pygame.font.Font('Arial', 32)
         self.running = True
 
-    def drawTilemap(self, zone_name: str, x_offset: int = 0):
-        for i, row in enumerate(TILEMAPS[zone_name]):
+    def drawTilemap(self, zone: str, x_offset: int = 0):
+        for i, row in enumerate(TILEMAPS[zone]):
             for j, column in enumerate(row):
+                Floor(self, j + x_offset, i, zone)
                 if column == 'W':
-                    Block(self, j + x_offset, i)
+                    Block(self, j + x_offset, i, zone)
+                    
 
     def create(self):
         self.playing = True
