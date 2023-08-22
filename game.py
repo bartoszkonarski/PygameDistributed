@@ -33,6 +33,7 @@ class Game:
         self.player = Player(self, 1, 2)
 
         self.drawTilemap('FOREST')
+        self.drawTilemap('CASTLE', 100)
 
     def events(self):
         for event in pygame.event.get():

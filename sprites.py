@@ -64,8 +64,18 @@ class Player(pygame.sprite.Sprite):
         self.x_move = 0
         self.y_move = 0
 
+    def change_zone(self):
+       keys = pygame.key.get_pressed()
+       if keys[pygame.K_SPACE] and self.rect.x >= 0:
+           print(self.rect.x)
+           for sprite in self.game.all_sprites:
+               sprite.rect.x -= 100 * SQUARE_SIZE
+        
+           
+
     def update(self, *args: Any, **kwargs: Any) -> None:
         self.move()
+        self.change_zone()
         
 
 class Block(pygame.sprite.Sprite):
@@ -107,6 +117,6 @@ class Floor(pygame.sprite.Sprite):
 # pygame.init()
 # screen = pygame.display.set_mode((640, 640))
 # clock = pygame.time.Clock()
-# image = Spritesheet().get_sprite(704,3006)
+# image = Spritesheet().get_sprite(865,577)
 # image.set_colorkey(COLORS['BLACK'])
-# pygame.image.save(image, 'assets/FOREST_wall.png')
+# pygame.image.save(image, 'assets/CASTLE_floor.png')
