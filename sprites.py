@@ -1,5 +1,6 @@
 from typing import Any
 import pygame
+from itertools import cycle
 
 from config import (
     BLOCKS_LAYER, 
@@ -8,6 +9,7 @@ from config import (
     SQUARE_SIZE, 
     COLORS, 
     PLAYER_SPEED,
+    ZONES
 )
 
 class Spritesheet:
@@ -42,6 +44,8 @@ class Player(pygame.sprite.Sprite):
         self.rect.x = self.x
         self.rect.y = self.y
 
+        self.current_zone = 'FOREST'
+
     
     def move(self):
         keys = pygame.key.get_pressed()
@@ -65,11 +69,22 @@ class Player(pygame.sprite.Sprite):
         self.y_move = 0
 
     def change_zone(self):
-       keys = pygame.key.get_pressed()
-       if keys[pygame.K_SPACE] and self.rect.x >= 0:
-           print(self.rect.x)
-           for sprite in self.game.all_sprites:
-               sprite.rect.x -= 100 * SQUARE_SIZE
+        keys = pygame.key.get_pressed()
+        if keys[pygame.K_SPACE] and pygame.sprite.spritecollide(self, self.game.teleports, False):
+            mult = 100
+            zones = cycle(ZONES)
+            for zone in zones:
+                if zone == self.current_zone:
+                    next_zone = next(zones)
+                    mult = (ZONES.index(zone) - ZONES.index(next_zone)) * 100
+                    self.current_zone = next_zone
+                    print(self.current_zone)
+                    break
+
+            for sprite in self.game.all_sprites:
+                sprite.rect.x += mult * SQUARE_SIZE
+
+            self.rect.x -= mult * SQUARE_SIZE
         
            
 
@@ -114,9 +129,27 @@ class Floor(pygame.sprite.Sprite):
         self.rect.x = self.x
         self.rect.y = self.y
 
-# pygame.init()
-# screen = pygame.display.set_mode((640, 640))
-# clock = pygame.time.Clock()
-# image = Spritesheet().get_sprite(865,577)
-# image.set_colorkey(COLORS['BLACK'])
-# pygame.image.save(image, 'assets/CASTLE_floor.png')
+class Teleport(pygame.sprite.Sprite):
+    def __init__(self, game, x, y, zone) -> None:
+        self.game = game
+        self._layer = FLOOR_LAYER
+        self.groups = self.game.all_sprites, self.game.teleports
+        super().__init__(self.groups)
+
+        self.x = x * SQUARE_SIZE
+        self.y = y * SQUARE_SIZE
+        self.width = SQUARE_SIZE
+        self.height = SQUARE_SIZE
+
+        self.image = Spritesheet(f'{zone}_teleport').get_sprite(0,0)
+
+        self.rect = self.image.get_rect()
+        self.rect.x = self.x
+        self.rect.y = self.y
+
+pygame.init()
+screen = pygame.display.set_mode((640, 640))
+clock = pygame.time.Clock()
+image = Spritesheet().get_sprite(1984,353)
+image.set_colorkey(COLORS['BLACK'])
+pygame.image.save(image, 'assets/CASTLE_teleport.png')

@@ -14,11 +14,11 @@ BLOCKS_LAYER = 2
 FLOOR_LAYER = 1
 
 PLAYER_SPEED = 5
-
+ZONES = ['FOREST', 'CASTLE']
 TILEMAPS = {
     'FOREST': [
     'WWWWWWWWWWWWWWWWWWWW',
-    'W------------------W',
+    'W--------T---------W',
     'W------------------W',
     'W---WW-------------W',
     'W----W-------------W',
@@ -56,7 +56,7 @@ TILEMAPS = {
     'W------------------W',
     'W------------------W',
     'W------------------W',
-    'W------------------W',
+    'W--------T---------W',
     'W------------------W',
     'WWWWWWWWWWWWWWWWWWWW',
 ],

@@ -2,7 +2,7 @@ import sys
 import pygame
 
 from config import COLORS, FRAMERATE, RESOLUTION, TILEMAPS
-from sprites import Player, Block, Floor
+from sprites import Player, Block, Floor, Teleport
 
 
 class Game:
@@ -21,7 +21,8 @@ class Game:
                 Floor(self, j + x_offset, i, zone)
                 if column == 'W':
                     Block(self, j + x_offset, i, zone)
-                    
+                if column == 'T':
+                    Teleport(self, j + x_offset, i, zone)
 
     def create(self):
         self.playing = True
@@ -29,6 +30,7 @@ class Game:
         self.all_sprites = pygame.sprite.LayeredUpdates()
         self.blocks = pygame.sprite.LayeredUpdates()
         self.enemies = pygame.sprite.LayeredUpdates()
+        self.teleports = pygame.sprite.LayeredUpdates()
 
         self.player = Player(self, 1, 2)
 
