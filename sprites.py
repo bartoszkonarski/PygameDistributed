@@ -11,6 +11,7 @@ from config import (
     PLAYER_SPEED,
     ZONES
 )
+from client.client import Network
 
 class Spritesheet:
     def __init__(self, name='Sheet') -> None:
@@ -45,6 +46,7 @@ class Player(pygame.sprite.Sprite):
         self.rect.y = self.y
 
         self.current_zone = 'FOREST'
+        self.network = Network()
 
     
     def move(self):
@@ -78,15 +80,19 @@ class Player(pygame.sprite.Sprite):
                     next_zone = next(zones)
                     mult = (ZONES.index(zone) - ZONES.index(next_zone)) * 100
                     self.current_zone = next_zone
-                    print(self.current_zone)
                     break
 
             for sprite in self.game.all_sprites:
                 sprite.rect.x += mult * SQUARE_SIZE
 
             self.rect.x -= mult * SQUARE_SIZE
-        
-           
+
+            data = {
+                "event_type": "movement",
+                "id": self.network.id,
+                "position": [self.rect.x, self.rect.y],
+            }
+            print(self.network.send(data))
 
     def update(self, *args: Any, **kwargs: Any) -> None:
         self.move()
