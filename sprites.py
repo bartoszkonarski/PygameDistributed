@@ -58,7 +58,7 @@ class Player(pygame.sprite.Sprite):
         self.rect.x += self.x_move
         if pygame.sprite.spritecollide(self, self.game.blocks, False):
             self.rect.x -= self.x_move
-        
+
         if keys[pygame.K_w]:
             self.y_move -= PLAYER_SPEED
         if keys[pygame.K_s]:
@@ -69,6 +69,10 @@ class Player(pygame.sprite.Sprite):
 
         self.x_move = 0
         self.y_move = 0
+
+        if any(list(keys)):
+            self.send_event("movement")
+        
 
     def change_zone(self):
         keys = pygame.key.get_pressed()
@@ -87,16 +91,17 @@ class Player(pygame.sprite.Sprite):
 
             self.rect.x -= mult * SQUARE_SIZE
 
-            data = {
-                "event_type": "movement",
-                "id": self.network.id,
-                "position": [self.rect.x, self.rect.y],
-            }
-            print(self.network.send(data))
-
     def update(self, *args: Any, **kwargs: Any) -> None:
         self.move()
         self.change_zone()
+
+    def send_event(self, event_type):
+        data = {
+                "id": self.network.id,
+                "event_type": event_type,
+                "position": [self.rect.x, self.rect.y],
+            }
+        self.network.send(data)
         
 
 class Block(pygame.sprite.Sprite):

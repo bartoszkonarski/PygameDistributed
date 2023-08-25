@@ -23,6 +23,7 @@ players_base = {}
 
 def threaded_client(conn):
     global currentId, players_base
+    localId = currentId
     conn.send(str.encode(str(currentId)))
     currentId += 1
     while True:
@@ -47,8 +48,8 @@ def threaded_client(conn):
         except Exception as e:
             print(e)
             break
-
-    print("Connection Closed")
+    del players_base[str(localId)]
+    print(f"Connection ({localId}) Closed")
     conn.close()
 
 while True:
