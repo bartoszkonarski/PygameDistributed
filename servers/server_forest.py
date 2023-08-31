@@ -39,12 +39,16 @@ def threaded_client(conn):
                 if client_id not in players_base:
                     players_base[client_id] = {}
                 
-                if data['event_type'] == "movement":
+                if data['event_type'] in ("movement","get_positions"):
                     players_base[client_id]['position'] = data['position']
                 
                 print("Sending: " + str(players_base))
 
             conn.sendall(str.encode(json.dumps(players_base)))
+
+
+
+            
         except Exception as e:
             print(e)
             break

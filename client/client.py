@@ -21,6 +21,6 @@ class Network:
             data_json = json.dumps(data)
             self.client.send(str.encode(data_json))
             reply = self.client.recv(2048).decode()
-            return reply
+            return json.loads(reply)
         except socket.error as e:
             return str(e)

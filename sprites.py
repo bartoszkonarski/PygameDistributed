@@ -11,7 +11,7 @@ from config import (
     PLAYER_SPEED,
     ZONES
 )
-from client.client import Network
+
 
 class Spritesheet:
     def __init__(self, name='Sheet') -> None:
@@ -46,7 +46,7 @@ class Player(pygame.sprite.Sprite):
         self.rect.y = self.y
 
         self.current_zone = 'FOREST'
-        self.network = Network()
+        
 
     
     def move(self):
@@ -71,7 +71,7 @@ class Player(pygame.sprite.Sprite):
         self.y_move = 0
 
         if any(list(keys)):
-            self.send_event("movement")
+            self.send_event("movement", position=[self.rect.x, self.rect.y])
         
 
     def change_zone(self):
@@ -95,13 +95,13 @@ class Player(pygame.sprite.Sprite):
         self.move()
         self.change_zone()
 
-    def send_event(self, event_type):
+    def send_event(self, event_type, **kwargs):
         data = {
-                "id": self.network.id,
+                "id": self.game.network.id,
                 "event_type": event_type,
-                "position": [self.rect.x, self.rect.y],
+                **kwargs
             }
-        self.network.send(data)
+        return self.game.network.send(data)
         
 
 class Block(pygame.sprite.Sprite):
@@ -158,9 +158,29 @@ class Teleport(pygame.sprite.Sprite):
         self.rect.x = self.x
         self.rect.y = self.y
 
-pygame.init()
-screen = pygame.display.set_mode((640, 640))
-clock = pygame.time.Clock()
-image = Spritesheet().get_sprite(1984,353)
-image.set_colorkey(COLORS['BLACK'])
-pygame.image.save(image, 'assets/CASTLE_teleport.png')
+class Enemy(pygame.sprite.Sprite):
+    def __init__(self, game, id, x, y) -> None:
+        self.game = game
+        self.id = id
+        self._layer = CHARACTERS_LAYER
+        self.groups = self.game.enemies
+        super().__init__(self.groups)
+
+        self.x = x * SQUARE_SIZE
+        self.y = y * SQUARE_SIZE
+
+        self.size = [SQUARE_SIZE, SQUARE_SIZE]
+
+        self.image = Spritesheet().get_sprite(1280,1888)
+        self.rect = self.image.get_rect()
+        self.rect.x = self.x
+        self.rect.y = self.y
+
+
+
+# pygame.init()
+# screen = pygame.display.set_mode((640, 640))
+# clock = pygame.time.Clock()
+# image = Spritesheet().get_sprite(1984,353)
+# image.set_colorkey(COLORS['BLACK'])
+# pygame.image.save(image, 'assets/CASTLE_teleport.png')

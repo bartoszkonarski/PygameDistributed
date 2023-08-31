@@ -1,9 +1,11 @@
 import sys
+
 import pygame
 
+from client.client import Network
 from config import COLORS, FRAMERATE, RESOLUTION, TILEMAPS
-from sprites import Player, Block, Floor, Teleport
-
+from sprites import Block, Floor, Player, Teleport, Enemy
+import json
 
 class Game:
     def __init__(self) -> None:
@@ -11,9 +13,11 @@ class Game:
         pygame.display.set_caption('Przetwarzanie rozproszone - projekt zaliczeniowy, Bartosz Konarski 200830')
         self.screen = pygame.display.set_mode(RESOLUTION)
         self.clock = pygame.time.Clock()
-
+        self.enemies_ids = []
         # self.font = pygame.font.Font('Arial', 32)
         self.running = True
+
+        self.network = Network()
 
     def drawTilemap(self, zone: str, x_offset: int = 0):
         for i, row in enumerate(TILEMAPS[zone]):
@@ -24,6 +28,26 @@ class Game:
                 if column == 'T':
                     Teleport(self, j + x_offset, i, zone)
 
+    def get_enemies_positions(self):
+        players = self.player.send_event("get_positions",position=[self.player.rect.x, self.player.rect.y])
+
+        for player in players:
+            if player == self.network.id:
+                continue
+            if player not in self.enemies_ids:
+                Enemy(self, player, *players[player].get('position'))
+                self.enemies_ids.append(player)
+            else:
+                for enemy in self.enemies:
+                    if enemy.id == player:
+                        enemy.rect.x, enemy.rect.y = players[player].get('position')
+
+        for enemy in self.enemies:
+            if enemy.id not in players:
+                if enemy.id in self.enemies_ids:
+                    self.enemies_ids.remove(enemy.id)
+                enemy.kill()          
+
     def create(self):
         self.playing = True
 
@@ -33,7 +57,6 @@ class Game:
         self.teleports = pygame.sprite.LayeredUpdates()
 
         self.player = Player(self, 1, 2)
-
         self.drawTilemap('FOREST')
         self.drawTilemap('CASTLE', 100)
 
@@ -45,10 +68,13 @@ class Game:
 
     def update(self):
         self.all_sprites.update()
+        self.get_enemies_positions()
+        self.enemies.update()
 
     def show(self):
         self.screen.fill(COLORS['BLACK'])
         self.all_sprites.draw(self.screen)
+        self.enemies.draw(self.screen)
         self.clock.tick(FRAMERATE)
         pygame.display.update()
 
