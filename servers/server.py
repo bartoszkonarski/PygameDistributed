@@ -1,11 +1,14 @@
 import socket
 import json
 from _thread import *
+import sys
+
+from servers_config import CONFIG
 
 s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 
-server = 'localhost'
-port = 5555
+CONFIG = CONFIG[sys.argv[1]]
+server, port = CONFIG['server'], CONFIG['port']
 
 server_ip = socket.gethostbyname(server)
 
@@ -39,7 +42,7 @@ def threaded_client(conn):
                 if client_id not in players_base:
                     players_base[client_id] = {}
                 
-                if data['event_type'] in ("movement","get_positions"):
+                if data['event_type'] in ("movement", "get_positions"):
                     players_base[client_id]['position'] = data['position']
                 
                 print("Sending: " + str(players_base))

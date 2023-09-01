@@ -84,6 +84,7 @@ class Player(pygame.sprite.Sprite):
                     next_zone = next(zones)
                     mult = (ZONES.index(zone) - ZONES.index(next_zone)) * 100
                     self.current_zone = next_zone
+                    self.game.change_server(next_zone)
                     break
 
             for sprite in self.game.all_sprites:

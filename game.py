@@ -5,7 +5,6 @@ import pygame
 from client.client import Network
 from config import COLORS, FRAMERATE, RESOLUTION, TILEMAPS
 from sprites import Block, Floor, Player, Teleport, Enemy
-import json
 
 class Game:
     def __init__(self) -> None:
@@ -17,7 +16,7 @@ class Game:
         # self.font = pygame.font.Font('Arial', 32)
         self.running = True
 
-        self.network = Network()
+        self.network = Network('FOREST')
 
     def drawTilemap(self, zone: str, x_offset: int = 0):
         for i, row in enumerate(TILEMAPS[zone]):
@@ -29,7 +28,7 @@ class Game:
                     Teleport(self, j + x_offset, i, zone)
 
     def get_enemies_positions(self):
-        players = self.player.send_event("get_positions",position=[self.player.rect.x, self.player.rect.y])
+        players = self.player.send_event("get_positions", position=[self.player.rect.x, self.player.rect.y])
 
         for player in players:
             if player == self.network.id:
@@ -47,6 +46,13 @@ class Game:
                 if enemy.id in self.enemies_ids:
                     self.enemies_ids.remove(enemy.id)
                 enemy.kill()          
+
+    def change_server(self, zone_name):
+        self.network = Network(zone_name)
+        for enemy in self.enemies:
+            enemy.kill()
+            self.enemies_ids = []
+
 
     def create(self):
         self.playing = True
@@ -76,7 +82,7 @@ class Game:
         self.all_sprites.draw(self.screen)
         self.enemies.draw(self.screen)
         self.clock.tick(FRAMERATE)
-        pygame.display.update()
+        pygame.display.update()    
 
     def main(self):
         while self.playing:
