@@ -1,6 +1,7 @@
 from typing import Any
 import pygame
 from itertools import cycle
+import math
 
 from config import (
     BLOCKS_LAYER, 
@@ -177,11 +178,53 @@ class Enemy(pygame.sprite.Sprite):
         self.rect.x = self.x
         self.rect.y = self.y
 
+class Attack(pygame.sprite.Sprite):
+    def __init__(self, game, x, y, direction) -> None:
+        self.game = game
+        self.x = x 
+        self.y = y
+        self.size = [SQUARE_SIZE, SQUARE_SIZE]
 
+        self.direction = direction
+        self._layer = CHARACTERS_LAYER
+        self.groups = self.game.all_sprites, self.game.attacks
+        super().__init__(self.groups)
+
+        self.animation_loop = 0
+        self.image = Spritesheet(f'attacks/right_1').get_sprite(0,0)
+        self.rect = self.image.get_rect()
+        self.rect.x = self.x
+        self.rect.y = self.y
+    
+    def update(self):
+        print(self.rect.x, self.rect.y)
+        self.animate()
+        self.collide()
+
+    def collide(self):
+        hits = pygame.sprite.spritecollide(self, self.game.enemies, False)
+
+        if hits:
+            print(hits[0].id)
+
+    def animate(self):
+        animations = [
+                    Spritesheet(f'attacks/{self.direction}_1').get_sprite(0,0),
+                    Spritesheet(f'attacks/{self.direction}_2').get_sprite(0,0),
+                    Spritesheet(f'attacks/{self.direction}_3').get_sprite(0,0),
+                    Spritesheet(f'attacks/{self.direction}_4').get_sprite(0,0),
+                ]
+        
+        self.image = animations[math.floor(self.animation_loop)]
+        self.image.set_colorkey(COLORS['WHITE'])
+        self.animation_loop += 0.5
+        if self.animation_loop >=4:
+            self.kill()
+        
 
 # pygame.init()
 # screen = pygame.display.set_mode((640, 640))
 # clock = pygame.time.Clock()
-# image = Spritesheet().get_sprite(1984,353)
-# image.set_colorkey(COLORS['BLACK'])
-# pygame.image.save(image, 'assets/CASTLE_teleport.png')
+# image = Spritesheet("attacks/attacks").get_sprite(2,72)
+# image.set_colorkey(COLORS['WHITE'])
+# pygame.image.save(image, 'assets/attacks/right_2.png')

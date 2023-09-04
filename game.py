@@ -4,7 +4,7 @@ import pygame
 
 from client.client import Network
 from config import COLORS, FRAMERATE, RESOLUTION, TILEMAPS
-from sprites import Block, Floor, Player, Teleport, Enemy
+from sprites import Block, Floor, Player, Teleport, Enemy, Attack
 
 class Game:
     def __init__(self) -> None:
@@ -61,6 +61,7 @@ class Game:
         self.blocks = pygame.sprite.LayeredUpdates()
         self.enemies = pygame.sprite.LayeredUpdates()
         self.teleports = pygame.sprite.LayeredUpdates()
+        self.attacks = pygame.sprite.LayeredUpdates()
 
         self.player = Player(self, 1, 2)
         self.drawTilemap('FOREST')
@@ -71,6 +72,16 @@ class Game:
             if event.type == pygame.QUIT:
                 self.playing = False
                 self.running = False
+            
+            if event.type == pygame.KEYDOWN:
+                if event.key == pygame.K_RIGHT:
+                    Attack(self, self.player.rect.x + self.player.width, self.player.rect.y, 'right')
+                if event.key == pygame.K_LEFT:
+                    Attack(self, self.player.rect.x - self.player.width, self.player.rect.y, 'left')
+                if event.key == pygame.K_UP:
+                    Attack(self, self.player.rect.x, self.player.rect.y - self.player.width, 'up')
+                if event.key == pygame.K_DOWN:
+                    Attack(self, self.player.rect.x, self.player.rect.y + self.player.width, 'down')
 
     def update(self):
         self.all_sprites.update()
