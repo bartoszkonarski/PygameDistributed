@@ -28,24 +28,27 @@ class Game:
                     Teleport(self, j + x_offset, i, zone)
 
     def get_enemies_positions(self):
-        players = self.player.send_event("get_positions", position=[self.player.rect.x, self.player.rect.y])
+        try:
+            players = self.player.send_event("get_positions", position=[self.player.rect.x, self.player.rect.y])
 
-        for player in players:
-            if player == self.network.id:
-                continue
-            if player not in self.enemies_ids:
-                Enemy(self, player, *players[player].get('position'))
-                self.enemies_ids.append(player)
-            else:
-                for enemy in self.enemies:
-                    if enemy.id == player:
-                        enemy.rect.x, enemy.rect.y = players[player].get('position')
+            for player in players:
+                if player == self.network.id:
+                    continue
+                if player not in self.enemies_ids:
+                    Enemy(self, player, *players[player].get('position'))
+                    self.enemies_ids.append(player)
+                else:
+                    for enemy in self.enemies:
+                        if enemy.id == player:
+                            enemy.rect.x, enemy.rect.y = players[player].get('position')
 
-        for enemy in self.enemies:
-            if enemy.id not in players:
-                if enemy.id in self.enemies_ids:
-                    self.enemies_ids.remove(enemy.id)
-                enemy.kill()          
+            for enemy in self.enemies:
+                if enemy.id not in players:
+                    if enemy.id in self.enemies_ids:
+                        self.enemies_ids.remove(enemy.id)
+                    enemy.kill()
+        except TypeError:
+            self.playing = False          
 
     def change_server(self, zone_name):
         self.network = Network(zone_name)
@@ -100,6 +103,7 @@ class Game:
             self.events()
             self.update()
             self.show()
+        print("END SCREEN")
         self.running = False
 
 

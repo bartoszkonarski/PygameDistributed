@@ -173,7 +173,7 @@ class Enemy(pygame.sprite.Sprite):
 
         self.size = [SQUARE_SIZE, SQUARE_SIZE]
 
-        self.image = Spritesheet().get_sprite(1280,1888)
+        self.image = Spritesheet(f'characters/enemy').get_sprite(0,0)
         self.rect = self.image.get_rect()
         self.rect.x = self.x
         self.rect.y = self.y
@@ -197,15 +197,23 @@ class Attack(pygame.sprite.Sprite):
         self.rect.y = self.y
     
     def update(self):
-        print(self.rect.x, self.rect.y)
         self.animate()
         self.collide()
 
     def collide(self):
-        hits = pygame.sprite.spritecollide(self, self.game.enemies, False)
+        hits = pygame.sprite.spritecollide(self, self.game.enemies, True)
 
         if hits:
-            print(hits[0].id)
+            self.send_event("kill_enemy", id=hits[0].id)
+
+    def send_event(self, event_type, **kwargs):
+        data = {
+                "id": self.game.network.id,
+                "event_type": event_type,
+                **kwargs
+            }
+
+        return self.game.network.send(data)
 
     def animate(self):
         animations = [
@@ -222,9 +230,9 @@ class Attack(pygame.sprite.Sprite):
             self.kill()
         
 
-# pygame.init()
-# screen = pygame.display.set_mode((640, 640))
-# clock = pygame.time.Clock()
-# image = Spritesheet("attacks/attacks").get_sprite(2,72)
-# image.set_colorkey(COLORS['WHITE'])
-# pygame.image.save(image, 'assets/attacks/right_2.png')
+pygame.init()
+screen = pygame.display.set_mode((640, 640))
+clock = pygame.time.Clock()
+image = Spritesheet().get_sprite(449,1920)
+image.set_colorkey(COLORS['WHITE'])
+pygame.image.save(image, 'assets/characters/enemy.png')

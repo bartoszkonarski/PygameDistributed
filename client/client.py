@@ -10,6 +10,7 @@ class Network:
         self.port = CONFIG[zone_name]['port']
         self.addr = (self.host, self.port)
         self.id = self.connect()
+        self.active = True
 
     def connect(self):
         self.client.connect(self.addr)
@@ -20,6 +21,11 @@ class Network:
             data_json = json.dumps(data)
             self.client.send(str.encode(data_json))
             reply = self.client.recv(2048).decode()
-            return json.loads(reply)
+            if reply == "Goodbye":
+                self.client.close()
+                self.active = False
+                print("You got killed!!!")
+            else:
+                return json.loads(reply)
         except socket.error as e:
             return str(e)
