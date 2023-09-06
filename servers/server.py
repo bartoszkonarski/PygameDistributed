@@ -45,13 +45,13 @@ def threaded_client(conn):
 
                 if data['event_type'] == "kill_enemy":
                     killed_players.append(data['id'])
-                    # players_base[str(localId)]['score'] += 1
+                    players_base[str(localId)]['score'] += 1
                 
                 client_id = data['id']
                 if client_id not in players_base:
                     players_base[client_id] = {}
-                    # players_base[client_id]['name'] = data['name']
-                    # players_base[client_id]['score'] = 0
+                    players_base[client_id]['name'] = data['name']
+                    players_base[client_id]['score'] = 0
                 
                 if data['event_type'] in ("movement", "get_positions"):
                     players_base[client_id]['position'] = data['position']

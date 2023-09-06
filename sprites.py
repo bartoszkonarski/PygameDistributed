@@ -25,7 +25,7 @@ class Spritesheet:
 
         return sprite
 class Player(pygame.sprite.Sprite):
-    def __init__(self, game, x, y) -> None:
+    def __init__(self, game, x, y, name='Player') -> None:
         
         self.game = game
         self._layer = CHARACTERS_LAYER
@@ -39,6 +39,8 @@ class Player(pygame.sprite.Sprite):
 
         self.x_move = 0
         self.y_move = 0
+
+        self.name=name
 
         self.image = Spritesheet().get_sprite(1280,1888)
 
@@ -101,6 +103,7 @@ class Player(pygame.sprite.Sprite):
         data = {
                 "id": self.game.network.id,
                 "event_type": event_type,
+                "name": self.name,
                 **kwargs
             }
         return self.game.network.send(data)
