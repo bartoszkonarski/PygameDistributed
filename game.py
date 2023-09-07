@@ -77,6 +77,7 @@ class Game:
     def events(self):
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
+                self.running = False
                 self.playing = False
             
             if event.type == pygame.KEYDOWN:
@@ -199,7 +200,8 @@ class Game:
             self.events()
             self.update()
             self.show()
-        self.game_over()
+        if self.running:
+            self.game_over()
         self.running = False
 
 

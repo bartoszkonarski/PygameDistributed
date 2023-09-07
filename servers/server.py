@@ -70,7 +70,7 @@ def threaded_client(conn):
             print(e)
             break
     
-    scoreboard.append((players_base[str(localId)]['name'],players_base[str(localId)]['score']))
+    scoreboard.append((players_base[str(localId)]['name'], players_base[str(localId)]['score']))
     producer.produce_message(json.dumps(scoreboard))
     del players_base[str(localId)]
     print(f"Connection ({localId}) Closed")
