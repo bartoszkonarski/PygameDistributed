@@ -1,10 +1,13 @@
 import sys
 
 import pygame
+import json
 
 from client.client import Network
+from client.consumer import RabbitConsumer
 from config import COLORS, FRAMERATE, RESOLUTION, TILEMAPS
-from sprites import Block, Floor, Player, Teleport, Enemy, Attack
+from sprites import Attack, Block, Enemy, Floor, Player, Teleport
+
 
 class Game:
     def __init__(self) -> None:
@@ -103,6 +106,9 @@ class Game:
             self.events()
             self.update()
             self.show()
+        consumer = RabbitConsumer("FOREST")
+        scoreboard = json.loads(consumer.response)
+        print(scoreboard)
         print("END SCREEN")
         self.running = False
 

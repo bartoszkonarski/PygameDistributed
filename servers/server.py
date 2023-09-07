@@ -4,10 +4,12 @@ from _thread import *
 import sys
 
 from servers_config import CONFIG
+from producer import RabbitProducer
 
 s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 
-CONFIG = CONFIG[sys.argv[1]]
+server_zone_name = sys.argv[1]
+CONFIG = CONFIG[server_zone_name]
 server, port = CONFIG['server'], CONFIG['port']
 
 server_ip = socket.gethostbyname(server)
@@ -24,9 +26,11 @@ print("Waiting for a connection")
 currentId = 0
 players_base = {}
 killed_players = []
+scoreboard = []
 
 def threaded_client(conn):
-    global currentId, players_base, killed_players
+    global currentId, players_base, killed_players,scoreboard
+    producer = RabbitProducer(server_zone_name)
     localId = currentId
     conn.send(str.encode(str(currentId)))
     currentId += 1
@@ -65,7 +69,9 @@ def threaded_client(conn):
             print(traceback.format_exc())
             print(e)
             break
-
+    
+    scoreboard.append((players_base[str(localId)]['name'],players_base[str(localId)]['score']))
+    producer.produce_message(json.dumps(scoreboard))
     del players_base[str(localId)]
     print(f"Connection ({localId}) Closed")
     conn.close()
