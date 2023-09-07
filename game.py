@@ -6,7 +6,7 @@ import json
 from client.client import Network
 from client.consumer import RabbitConsumer
 from config import COLORS, FRAMERATE, RESOLUTION, TILEMAPS
-from sprites import Attack, Block, Enemy, Floor, Player, Teleport
+from sprites import Attack, Block, Enemy, Floor, Player, Teleport, Button
 
 
 class Game:
@@ -16,7 +16,7 @@ class Game:
         self.screen = pygame.display.set_mode(RESOLUTION)
         self.clock = pygame.time.Clock()
         self.enemies_ids = []
-        # self.font = pygame.font.Font('Arial', 32)
+        self.font = pygame.font.Font('BreatheFireIii-PKLOB.ttf', 36)
         self.running = True
 
         self.network = Network('FOREST')
@@ -101,15 +101,43 @@ class Game:
         self.clock.tick(FRAMERATE)
         pygame.display.update()    
 
+    def game_over(self):
+        game_over = True
+
+        current_zone = self.player.current_zone
+        forest_q = RabbitConsumer(current_zone)
+        forest_scoreboard = json.loads(forest_q.response)
+
+        scoreboard_toggle_button = Button(320-125, 540, 250, 80, COLORS['WHITE'], COLORS['BLACK'], 'EXIT', 24)
+        title = self.font.render(current_zone, True, COLORS['BLACK'])
+        title_rect = title.get_rect(x=320-title.get_width()/2, y=25)
+
+        while game_over:
+            for event in pygame.event.get():
+                if event.type == pygame.QUIT:
+                    game_over = False
+                    self.running = False
+
+            mouse_pos = pygame.mouse.get_pos()
+            mouse_pressed = pygame.mouse.get_pressed()
+
+            if scoreboard_toggle_button.is_pressed(mouse_pos, mouse_pressed):
+                game_over = False
+                self.running = False
+
+            self.screen.blit(pygame.image.load(f'./assets/bg_{current_zone}.png'), (0,0))
+            self.screen.blit(title, title_rect)
+            self.screen.blit(scoreboard_toggle_button.image, scoreboard_toggle_button.rect)
+            self.clock.tick(FRAMERATE)
+            pygame.display.update()
+                
+
     def main(self):
         while self.playing:
             self.events()
             self.update()
             self.show()
-        consumer = RabbitConsumer("FOREST")
-        scoreboard = json.loads(consumer.response)
-        print(scoreboard)
-        print("END SCREEN")
+        self.game_over()
         self.running = False
 
 

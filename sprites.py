@@ -231,11 +231,41 @@ class Attack(pygame.sprite.Sprite):
         self.animation_loop += 0.5
         if self.animation_loop >=4:
             self.kill()
-        
 
-pygame.init()
-screen = pygame.display.set_mode((640, 640))
-clock = pygame.time.Clock()
-image = Spritesheet().get_sprite(449,1920)
-image.set_colorkey(COLORS['WHITE'])
-pygame.image.save(image, 'assets/characters/enemy.png')
+class Button:
+    def __init__(self, x, y, width, height, bg, fg, content, fontsize) -> None:
+        self.font = pygame.font.Font('BreatheFireIii-PKLOB.ttf', fontsize)
+        self.content = content
+
+        self.x = x
+        self.y = y
+        self.width = width
+        self.height = height
+
+        self.fg = fg
+        self.bg = bg
+
+        self.image = pygame.Surface((self.width, self.height))
+        self.image.fill(self.bg)
+        self.rect = self.image.get_rect()
+
+        self.rect.x = self.x
+        self.rect.y = self.y
+
+        self.text = self.font.render(self.content, True, self.fg)
+        self.text_rect = self.text.get_rect(center=(self.width / 2, self.height / 2))
+        self.image.blit(self.text, self.text_rect)
+
+    def is_pressed(self, pos, pressed):
+        if self.rect.collidepoint(pos):
+            if pressed[0]:
+                return True
+            return False
+        return False
+
+# pygame.init()
+# screen = pygame.display.set_mode((640, 640))
+# clock = pygame.time.Clock()
+# image = Spritesheet().get_sprite(449,1920)
+# image.set_colorkey(COLORS['WHITE'])
+# pygame.image.save(image, 'assets/characters/enemy.png')

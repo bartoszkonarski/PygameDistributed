@@ -7,7 +7,7 @@ class RabbitConsumer:
 
         self.connection = pika.BlockingConnection(connection_parameters)
         self.channel = self.connection.channel()
-        for method_frame, properties, body in self.channel.consume('testin'):
+        for method_frame, properties, body in self.channel.consume(name):
             self.response = body
 
             # Acknowledge the message
