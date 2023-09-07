@@ -10,7 +10,7 @@ from sprites import Attack, Block, Enemy, Floor, Player, Teleport, Button
 
 
 class Game:
-    def __init__(self) -> None:
+    def __init__(self, name=None) -> None:
         pygame.init()
         pygame.display.set_caption('Przetwarzanie rozproszone - projekt zaliczeniowy, Bartosz Konarski 200830')
         self.screen = pygame.display.set_mode(RESOLUTION)
@@ -18,7 +18,7 @@ class Game:
         self.enemies_ids = []
         self.font = pygame.font.Font('BreatheFireIii-PKLOB.ttf', 36)
         self.running = True
-
+        self.username = name
         self.network = Network('FOREST')
 
     def drawTilemap(self, zone: str, x_offset: int = 0):
@@ -69,7 +69,7 @@ class Game:
         self.teleports = pygame.sprite.LayeredUpdates()
         self.attacks = pygame.sprite.LayeredUpdates()
 
-        self.player = Player(self, 1, 2)
+        self.player = Player(self, 1, 2, self.username)
         self.drawTilemap('FOREST')
         self.drawTilemap('CASTLE', 100)
 
@@ -105,12 +105,39 @@ class Game:
         game_over = True
 
         current_zone = self.player.current_zone
-        forest_q = RabbitConsumer(current_zone)
-        forest_scoreboard = json.loads(forest_q.response)
+        scoreboard_queue = RabbitConsumer(current_zone)
+        scoreboard = json.loads(scoreboard_queue.response)
+        scoreboard_top = sorted(scoreboard, key=lambda x:x[1], reverse=True)[:5]
+        print(scoreboard_top)
 
         scoreboard_toggle_button = Button(320-125, 540, 250, 80, COLORS['WHITE'], COLORS['BLACK'], 'EXIT', 24)
-        title = self.font.render(current_zone, True, COLORS['BLACK'])
+        title = self.font.render(f'SCOREBOARD - {current_zone}', True, COLORS['BLACK'])
         title_rect = title.get_rect(x=320-title.get_width()/2, y=25)
+
+        scores_offset = 0
+        self.screen.blit(pygame.image.load(f'./assets/bg_{current_zone}.png'), (0,0))
+        self.screen.blit(title, title_rect)
+        self.screen.blit(scoreboard_toggle_button.image, scoreboard_toggle_button.rect)
+
+        for score in scoreboard_top:
+            if score[0]==self.username:
+                player_name_text = self.font.render(score[0], True, COLORS['BLUE'])
+                score_text = self.font.render(str(score[1]), True, COLORS['BLUE'])
+            else:
+                player_name_text = self.font.render(score[0], True, COLORS['BLACK'])
+                score_text = self.font.render(str(score[1]), True, COLORS['BLACK'])
+
+            player_name_rect = title.get_rect(x=175, y=143+scores_offset)
+            self.screen.blit(player_name_text, player_name_rect)
+
+            
+            score_text_rect = title.get_rect(x=440, y=143+scores_offset)
+            self.screen.blit(score_text, score_text_rect)
+
+            scores_offset += 78
+        
+        self.clock.tick(FRAMERATE)
+        pygame.display.update()
 
         while game_over:
             for event in pygame.event.get():
@@ -121,15 +148,12 @@ class Game:
             mouse_pos = pygame.mouse.get_pos()
             mouse_pressed = pygame.mouse.get_pressed()
 
+
             if scoreboard_toggle_button.is_pressed(mouse_pos, mouse_pressed):
                 game_over = False
                 self.running = False
 
-            self.screen.blit(pygame.image.load(f'./assets/bg_{current_zone}.png'), (0,0))
-            self.screen.blit(title, title_rect)
-            self.screen.blit(scoreboard_toggle_button.image, scoreboard_toggle_button.rect)
-            self.clock.tick(FRAMERATE)
-            pygame.display.update()
+            
                 
 
     def main(self):
@@ -142,7 +166,11 @@ class Game:
 
 
 if __name__ == "__main__":
-    g = Game()
+    name = input("Please enter your username (press ENTER to proceed): ")
+    if name:
+        g = Game(name)
+    else:
+        g = Game()
     g.create()
     while g.running:
         g.main()

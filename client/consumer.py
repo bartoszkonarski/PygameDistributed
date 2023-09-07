@@ -14,7 +14,7 @@ class RabbitConsumer:
             self.channel.basic_ack(method_frame.delivery_tag)
 
             # Escape out of the loop after 10 messages
-            if method_frame.delivery_tag == 1:
+            if method_frame.delivery_tag == 5:
                 break
 
             # Cancel the consumer and return any pending messages
