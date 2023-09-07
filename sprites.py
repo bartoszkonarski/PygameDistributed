@@ -25,7 +25,7 @@ class Spritesheet:
 
         return sprite
 class Player(pygame.sprite.Sprite):
-    def __init__(self, game, x, y, name='Player') -> None:
+    def __init__(self, game, x, y, name='Anonymous', champion='viking') -> None:
         
         self.game = game
         self._layer = CHARACTERS_LAYER
@@ -39,10 +39,14 @@ class Player(pygame.sprite.Sprite):
 
         self.x_move = 0
         self.y_move = 0
+        if name:
+            self.name=name
+        else:
+            self.name = "Anonymous"
+        
+        self.champion = champion
 
-        self.name=name
-
-        self.image = Spritesheet().get_sprite(1280,1888)
+        self.image = Spritesheet(f'characters/{self.champion}').get_sprite(0,0)
 
         self.rect = self.image.get_rect()
         self.rect.x = self.x
@@ -266,6 +270,6 @@ class Button:
 # pygame.init()
 # screen = pygame.display.set_mode((640, 640))
 # clock = pygame.time.Clock()
-# image = Spritesheet().get_sprite(449,1920)
+# image = Spritesheet().get_sprite(897,1920)
 # image.set_colorkey(COLORS['WHITE'])
-# pygame.image.save(image, 'assets/characters/enemy.png')
+# pygame.image.save(image, 'assets/characters/knight.png')

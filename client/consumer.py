@@ -9,7 +9,7 @@ class RabbitConsumer:
         self.channel = self.connection.channel()
         for method_frame, properties, body in self.channel.consume(name):
             self.response = body
-
+            
             # Acknowledge the message
             self.channel.basic_ack(method_frame.delivery_tag)
 

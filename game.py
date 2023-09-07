@@ -19,6 +19,7 @@ class Game:
         self.font = pygame.font.Font('BreatheFireIii-PKLOB.ttf', 36)
         self.running = True
         self.username = name
+        self.champion = "viking"
         self.network = Network('FOREST')
 
     def drawTilemap(self, zone: str, x_offset: int = 0):
@@ -69,7 +70,7 @@ class Game:
         self.teleports = pygame.sprite.LayeredUpdates()
         self.attacks = pygame.sprite.LayeredUpdates()
 
-        self.player = Player(self, 1, 2, self.username)
+        self.player = Player(self, 1, 2, self.username, self.champion)
         self.drawTilemap('FOREST')
         self.drawTilemap('CASTLE', 100)
 
@@ -77,7 +78,6 @@ class Game:
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 self.playing = False
-                self.running = False
             
             if event.type == pygame.KEYDOWN:
                 if event.key == pygame.K_RIGHT:
@@ -153,8 +153,46 @@ class Game:
                 game_over = False
                 self.running = False
 
-            
-                
+    def intro_screen(self):
+        intro = True
+
+        while intro:
+            for event in pygame.event.get():
+                if event.type == pygame.QUIT:
+                    intro = False
+
+            mouse_pos = pygame.mouse.get_pos()
+            mouse_pressed = pygame.mouse.get_pressed()
+
+            self.screen.blit(pygame.image.load(f'./assets/bg_intro.png'), (0,0))
+            self.screen.blit(pygame.image.load(f'./assets/characters/viking.png'), (320-135, 300))
+            self.screen.blit(pygame.image.load(f'./assets/characters/wizard.png'), (320-15, 300))
+            self.screen.blit(pygame.image.load(f'./assets/characters/knight.png'), (320+105, 300))
+
+            viking_button = Button(320-160, 350, 80, 35, COLORS['WHITE'], COLORS['BLACK'], 'Viking', 20)
+            wizard_button = Button(320-40, 350, 80, 35, COLORS['WHITE'], COLORS['BLACK'], 'Wizard', 20)
+            knight_button = Button(320+80, 350, 80, 35, COLORS['WHITE'], COLORS['BLACK'], 'Knight', 20)
+
+            if viking_button.is_pressed(mouse_pos, mouse_pressed):
+                self.champion = "viking"
+                intro = False 
+            if wizard_button.is_pressed(mouse_pos, mouse_pressed):
+                self.champion = "wizard"
+                intro = False
+            if knight_button.is_pressed(mouse_pos, mouse_pressed):
+                self.champion = "knight"
+                intro = False
+
+            title = self.font.render(f'Select your champion', True, COLORS['WHITE'])
+            title_rect = title.get_rect(x=320-title.get_width()/2, y=225)
+            self.screen.blit(title, title_rect)
+
+            self.screen.blit(viking_button.image, viking_button.rect)
+            self.screen.blit(wizard_button.image, wizard_button.rect)
+            self.screen.blit(knight_button.image, knight_button.rect)
+     
+            self.clock.tick(FRAMERATE)
+            pygame.display.update()
 
     def main(self):
         while self.playing:
@@ -171,6 +209,8 @@ if __name__ == "__main__":
         g = Game(name)
     else:
         g = Game()
+    # g= Game()
+    g.intro_screen()
     g.create()
     while g.running:
         g.main()
